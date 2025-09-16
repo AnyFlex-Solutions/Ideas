@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru" class="theme-light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Query</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Переменные для светлой темы */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --success-color: #4cc9f0;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-light: rgba(67, 97, 238, 0.1);
+}
+
+/* Переменные для темной темы */
+.theme-dark {
+    --primary-color: #4895ef;
+    --secondary-color: #4361ee;
+    --success-color: #4cc9f0;
+    --text-color: #f5f5f5;
+    --text-secondary: #cccccc;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333333;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --hover-light: rgba(72, 149, 239, 0.15);
+}
+
+/* Базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Шапка */
+.header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: var(--shadow);
+}
+
+.header__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Основное содержимое */
+.main {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Форма */
+.form__group {
+    margin-bottom: 1.5rem;
+}
+
+.form__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form__subgroup {
+    margin-bottom: 1rem;
+}
+
+.form__textarea,
+.form__input,
+.select__field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.form__textarea:focus,
+.form__input:focus,
+.select__field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--hover-light);
+}
+
+.form__textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form__input--inline {
+    margin-top: 0.5rem;
+    display: none;
+    width: 100%;
+}
+
+/* Выбор темы */
+.theme-switcher__btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-switcher__btn i {
+    position: absolute;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.theme-switcher__btn .fa-sun {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.theme-dark .theme-switcher__btn .fa-moon {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.theme-dark .theme-switcher__btn .fa-sun {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Селект */
+.select {
+    position: relative;
+}
+
+.select__field {
+    appearance: none;
+    padding-right: 2.5rem;
+}
+
+.select__icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+}
+
+/* Чекбоксы */
+.output-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checkbox:hover {
+    border-color: var(--primary-color);
+}
+
+.checkbox__input {
+    display: none;
+}
+
+.checkbox__input:checked + .checkbox__label {
+    color: var(--primary-color);
+}
+
+.checkbox__input:checked + .checkbox__label .checkbox__icon {
+    color: var(--primary-color);
+}
+
+.checkbox__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.checkbox__icon {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Кнопки */
+.button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.button--primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.button--primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button--secondary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.button--secondary:hover {
+    background-color: var(--hover-light);
+    transform: translateY(-2px);
+}
+
+.button--primary:disabled,
+.button--primary[disabled] {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+}
+
+.button--secondary:disabled,
+.button--secondary[disabled] {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    background-color: transparent;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+    transform: none;
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+/* Результат */
+.result {
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    max-height: 60vh;
+    overflow: auto;
+}
+
+.result__content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+/* Подвал */
+.footer {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+.footer__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.footer__text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.margin-top {
+    margin-top: 7px;
+}
+
+.form__password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .header__content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .main {
+        padding: 1.5rem 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .output-options {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header__title {
+        font-size: 1.25rem;
+    }
+
+    .form__textarea,
+    .form__input,
+    .select__field {
+        padding: 0.65rem 0.9rem;
+    }
+}
+    </style>
+</head>
+<body class="page">
+    <header class="header">
+        <div class="header__content">
+            <h1 class="header__title">
+                <i class="fas fa-brain"></i> Neural Network Query
+            </h1>
+            <div class="theme-switcher">
+                <button class="theme-switcher__btn" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="card">
+            <form class="form" method="POST">
+                <div class="form__group">
+                    <label class="form__label" for="query">Ваш запрос:</label>
+                    <textarea class="form__textarea" id="query" name="query" rows="4" placeholder="Введите ваш запрос здесь..."></textarea>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" for="examples">Примеры строк (одна строка - один пример): *</label>
+                    <textarea class="form__textarea" id="examples" name="examples" rows="4" placeholder="Пример 1\nПример 2\n..."></textarea>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" for="total_records">Количество записей: *</label>
+                    <input class="form__input" type="number" id="total_records" name="total_records" value="100" min="1">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" for="network">Выберите сеть: *</label>
+                    <div class="select">
+                        <select class="select__field" id="network" name="network">
+                            <option value="gemini">Gemini</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="custom">Custom API</option>
+                        </select>
+                        <i class="select__icon fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <div class="form__group" id="custom_fields" style="display:none;">
+                    <div class="form__subgroup">
+                        <label class="form__label" for="custom_api_url">API URL:</label>
+                        <input class="form__input" type="text" id="custom_api_url" name="custom_api_url" placeholder="https://api.example.com/endpoint">
+                    </div>
+
+                    <div class="form__subgroup">
+                        <label class="form__label" for="custom_api_key">API Key:</label>
+                        <input class="form__input" type="text" id="custom_api_key" name="custom_api_key" placeholder="Ваш секретный ключ">
+                    </div>
+
+                    <div class="form__subgroup">
+                        <label class="form__label" for="custom_request_format">Формат запроса (JSON):</label>
+                        <input class="form__input" type="text" id="custom_request_format" name="custom_request_format" placeholder='{"query": "{query}"}'>
+                    </div>
+
+                    <div class="form__subgroup">
+                        <label class="form__label" for="custom_response_key">Ключ ответа:</label>
+                        <input class="form__input" type="text" id="custom_response_key" name="custom_response_key" placeholder="result">
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">Выходные данные: *</label>
+                    <div class="output-options">
+                        <div class="checkbox">
+                            <input class="checkbox__input" type="checkbox" name="output_type" value="screen" id="screen">
+                            <label class="checkbox__label" for="screen">
+                                <i class="checkbox__icon fas fa-desktop"></i> Экран
+                            </label>
+                        </div>
+
+                        <div class="checkbox">
+                            <input class="checkbox__input" type="checkbox" name="output_type" value="database" id="database">
+                            <label class="checkbox__label" for="database">
+                                <i class="checkbox__icon fas fa-database"></i> База данных
+                            </label>
+                        </div>
+
+                        <div class="checkbox">
+                            <input class="checkbox__input" type="checkbox" name="output_type" value="email" id="email">
+                            <label class="checkbox__label" for="email">
+                                <i class="checkbox__icon fas fa-envelope"></i> Email
+                            </label>
+                            <input class="form__input form__input--inline" type="email" name="email" placeholder="your@email.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" for="table_name">Имя таблицы: *</label>
+                    <input class="form__input" type="text" id="table_name" name="table_name" placeholder="dataset_entries">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" for="db_fields">Поля таблицы (через запятую): *</label>
+                    <input class="form__input" type="text" id="db_fields" name="db_fields" placeholder="field1,field2,field3">
+                </div>
+
+                <!-- DB config -->
+                <div class="form__group" id="db_fields_section" style="display:none;">
+                    <h3 class="form__subtitle">Настройки базы данных</h3>
+                    <label class="form__label" for="db_host">Хост:</label>
+                    <input class="form__input" type="text" id="db_host" name="db_host" placeholder="localhost">
+
+                    <label class="form__label" for="db_port">Порт:</label>
+                    <input class="form__input" type="number" id="db_port" name="db_port" placeholder="5432">
+
+                    <label class="form__label" for="db_name">Имя БД:</label>
+                    <input class="form__input" type="text" id="db_name" name="db_name" placeholder="my_database">
+
+                    <label class="form__label" for="db_user">Пользователь:</label>
+                    <input class="form__input" type="text" id="db_user" name="db_user" placeholder="postgres">
+
+                    <label class="form__label" for="db_password">Пароль:</label>
+                    <div class="form__password-wrapper">
+                        <input class="form__input" type="password" id="db_password" name="db_password" placeholder="password">
+                        <i class="fas fa-eye toggle-password" id="togglePassword" style="cursor:pointer; position:absolute; right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                </div>
+
+                <div class="checkbox">
+                    <input class="checkbox__input" type="checkbox" name="notify_email" id="notify_email">
+                    <label class="checkbox__label" for="notify_email">
+                        <i class="fas fa-check-circle"></i> Уведомление по Email
+                    </label>
+                </div>
+
+                <div id="notify_email_fields" style="display: none;">
+                    <label class="form__label" for="notify_email_input">Email для уведомления: *</label>
+                    <input class="form__input" type="email" name="noti_email" id="notify_email_input" placeholder="your@email.com">
+                </div>
+
+                <div class="checkbox margin-top">
+                    <input class="checkbox__input" type="checkbox" name="notify_telegram" id="notify_telegram">
+                    <label class="checkbox__label" for="notify_telegram">
+                        <i class="fas fa-check-circle"></i> Уведомление в Telegram
+                    </label>
+                </div>
+
+                <div id="notify_telegram_fields" style="display: none;">
+                    <label class="form__label" for="telegram_token_notify">Telegram Bot Token:</label>
+                    <input class="form__input" type="text" name="noti_telegram_token" id="telegram_token_notify" placeholder="123456:ABC-DEF...">
+
+                    <label class="form__label" for="telegram_chat_id_notify">Telegram Chat ID:</label>
+                    <input class="form__input" type="text" name="noti_telegram_chat_id" id="telegram_chat_id_notify" placeholder="987654321">
+                </div>
+
+                <!-- Кнопка -->
+                <div class="form__actions">
+                    <button class="button button--primary" type="submit" id="submitBtn" disabled>
+                        <i class="fas fa-paper-plane"></i> Отправить запрос
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__content">
+            <p class="footer__text">Neural Network Query System © 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.className = savedTheme;
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('theme-light')) {
+                htmlElement.className = 'theme-dark';
+                localStorage.setItem('theme', 'theme-dark');
+            } else {
+                htmlElement.className = 'theme-light';
+                localStorage.setItem('theme', 'theme-light');
+            }
+        });
+
+        // Скрытие/показ custom API
+        document.getElementById("network").addEventListener("change", function() {
+            document.getElementById("custom_fields").style.display = this.value === "custom" ? "block" : "none";
+        });
+
+        // Скрытие/показ email поля
+        const emailCheckbox = document.getElementById('email');
+        const emailInput = document.querySelector('input[type="email"]');
+        emailCheckbox.addEventListener('change', () => {
+            const show = emailCheckbox.checked;
+            emailInput.style.display = show ? "block" : "none";
+            emailInput.required = show;
+
+            validateSubmitButton();
+        });
+        emailInput.style.display = emailCheckbox.checked ? 'block' : 'none';
+
+        // Показываем поля БД при выборе
+        const dbCheckbox = document.getElementById("database");
+        const dbFieldsSection = document.getElementById("db_fields_section");
+        dbCheckbox.addEventListener("change", () => {
+            dbFieldsSection.style.display = dbCheckbox.checked ? "block" : "none";
+            validateSubmitButton();
+        });
+
+        // screen — просто влияет на кнопку
+        document.getElementById("screen").addEventListener("change", validateSubmitButton);
+
+        // проверка: выбран ли хотя бы один способ вывода
+        function validateSubmitButton() {
+            const anyChecked = document.querySelectorAll('input[name="output_type"]:checked').length > 0;
+            document.getElementById("submitBtn").disabled = !anyChecked;
+        }
+
+        // начальная проверка
+        window.addEventListener("DOMContentLoaded", () => {
+            validateSubmitButton();
+
+            dbFieldsSection.style.display = dbCheckbox.checked ? "block" : "none";
+            emailInput.style.display = emailCheckbox.checked ? "block" : "none";
+        });
+
+        // Показ/скрытие уведомлений и установка required
+        const notifyEmailCheckbox = document.getElementById("notify_email");
+        const notifyEmailFields = document.getElementById("notify_email_fields");
+        const nemailInput = document.getElementById("notify_email_input");
+
+        const notifyTelegramCheckbox = document.getElementById("notify_telegram");
+        const notifyTelegramFields = document.getElementById("notify_telegram_fields");
+        const telegramToken = document.getElementById("telegram_token_notify");
+        const telegramChatId = document.getElementById("telegram_chat_id_notify");
+
+        notifyEmailCheckbox.addEventListener("change", () => {
+            const show = notifyEmailCheckbox.checked;
+            notifyEmailFields.style.display = show ? "block" : "none";
+            nemailInput.required = show;
+        });
+
+        notifyTelegramCheckbox.addEventListener("change", () => {
+            const show = notifyTelegramCheckbox.checked;
+            notifyTelegramFields.style.display = show ? "block" : "none";
+            telegramToken.required = show;
+            telegramChatId.required = show;
+        });
+
+        // Показывать при загрузке, если активны
+        window.addEventListener("DOMContentLoaded", () => {
+            notifyEmailFields.style.display = notifyEmailCheckbox.checked ? "block" : "none";
+            nemailInput.required = notifyEmailCheckbox.checked;
+
+            notifyTelegramFields.style.display = notifyTelegramCheckbox.checked ? "block" : "none";
+            telegramToken.required = notifyTelegramCheckbox.checked;
+            telegramChatId.required = notifyTelegramCheckbox.checked;
+        });
+
+        // Переключение видимости пароля
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordField = document.getElementById("db_password");
+
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordField.type === "password";
+            passwordField.type = isPassword ? "text" : "password";
+            togglePassword.classList.toggle("fa-eye");
+            togglePassword.classList.toggle("fa-eye-slash");
+        });
+
+    </script>
+</body>
+</html>

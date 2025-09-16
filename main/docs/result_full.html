@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru" class="theme-light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результат запроса</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Переменные для светлой темы */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --success-color: #4cc9f0;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-light: rgba(67, 97, 238, 0.1);
+}
+
+/* Переменные для темной темы */
+.theme-dark {
+    --primary-color: #4895ef;
+    --secondary-color: #4361ee;
+    --success-color: #4cc9f0;
+    --text-color: #f5f5f5;
+    --text-secondary: #cccccc;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333333;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --hover-light: rgba(72, 149, 239, 0.15);
+}
+
+/* Базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Шапка */
+.header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: var(--shadow);
+}
+
+.header__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Основное содержимое */
+.main {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Форма */
+.form__group {
+    margin-bottom: 1.5rem;
+}
+
+.form__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form__subgroup {
+    margin-bottom: 1rem;
+}
+
+.form__textarea,
+.form__input,
+.select__field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.form__textarea:focus,
+.form__input:focus,
+.select__field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--hover-light);
+}
+
+.form__textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form__input--inline {
+    margin-top: 0.5rem;
+    display: none;
+    width: 100%;
+}
+
+/* Выбор темы */
+.theme-switcher__btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-switcher__btn i {
+    position: absolute;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.theme-switcher__btn .fa-sun {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.theme-dark .theme-switcher__btn .fa-moon {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.theme-dark .theme-switcher__btn .fa-sun {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Селект */
+.select {
+    position: relative;
+}
+
+.select__field {
+    appearance: none;
+    padding-right: 2.5rem;
+}
+
+.select__icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+}
+
+/* Чекбоксы */
+.output-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checkbox:hover {
+    border-color: var(--primary-color);
+}
+
+.checkbox__input {
+    display: none;
+}
+
+.checkbox__input:checked + .checkbox__label {
+    color: var(--primary-color);
+}
+
+.checkbox__input:checked + .checkbox__label .checkbox__icon {
+    color: var(--primary-color);
+}
+
+.checkbox__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.checkbox__icon {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Кнопки */
+.button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.button--primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.button--primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button--secondary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.button--secondary:hover {
+    background-color: var(--hover-light);
+    transform: translateY(-2px);
+}
+
+.button--primary:disabled,
+.button--primary[disabled] {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+}
+
+.button--secondary:disabled,
+.button--secondary[disabled] {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    background-color: transparent;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+    transform: none;
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+/* Результат */
+.result {
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    max-height: 60vh;
+    overflow: auto;
+}
+
+.result__content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+/* Подвал */
+.footer {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+.footer__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.footer__text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.margin-top {
+    margin-top: 7px;
+}
+
+.form__password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .header__content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .main {
+        padding: 1.5rem 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .output-options {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header__title {
+        font-size: 1.25rem;
+    }
+
+    .form__textarea,
+    .form__input,
+    .select__field {
+        padding: 0.65rem 0.9rem;
+    }
+}
+    </style>
+</head>
+<body class="page">
+    <header class="header">
+        <div class="header__content">
+            <h1 class="header__title">
+                <i class="fas fa-brain"></i> Результат запроса
+            </h1>
+            <div class="theme-switcher">
+                <button class="theme-switcher__btn" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="card">
+            <div class="result">
+                <pre class="result__content">{{ result }}</pre>
+            </div>
+
+            <div class="actions">
+                <a href="/" class="button button--secondary">
+                    <i class="fas fa-arrow-left"></i> Новый запрос
+                </a>
+                <button class="button button--primary" onclick="copyResult()">
+                    <i class="fas fa-copy"></i> Копировать
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__content">
+            <p class="footer__text">Neural Network Query System &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        // Переключение тем (как в index.html)
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.className = savedTheme;
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('theme-light')) {
+                htmlElement.className = 'theme-dark';
+                localStorage.setItem('theme', 'theme-dark');
+            } else {
+                htmlElement.className = 'theme-light';
+                localStorage.setItem('theme', 'theme-light');
+            }
+        });
+
+        // Копирование результата
+        function copyResult() {
+            const resultContent = document.querySelector('.result__content');
+            const textArea = document.createElement('textarea');
+            textArea.value = resultContent.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            alert('Результат скопирован в буфер обмена!');
+        }
+    </script>
+</body>
+</html>
